@@ -14,24 +14,71 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool _isLogin = true;
+  bool _unAbleToLogin = false;
+
   final _formKey = GlobalKey<FormState>();
 
   var _enteredEmail = '';
   var _enteredPassword = '';
 
   void _submit() async {
+    print('logging in...');
     if (!_formKey.currentState!.validate()) {
       return;
     }
     _formKey.currentState!.save();
 
-    if(_isLogin) {
-      // Log user in
-    } else {
+    if (_isLogin) {
+      print('trying to login');
       try {
-        final UserCredential = await _fireBase.createUserWithEmailAndPassword(
+        final UserCredential = await _fireBase
+            .signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPassword,
+        )
+            .then(
+          (value) {
+            print('logged in');
+            setState(
+              () {
+                _unAbleToLogin = false;
+              },
+            );
+          },
+        );
+        print(UserCredential);
+      } on FirebaseAuthException catch (error) {
+        switch (error.code) {
+          case 'user-not-found':
+            print('No user found for that email.');
+            break;
+          case 'wrong-password':
+            print('Wrong password provided for that user.');
+            break;
+          default:
+            print(error.message);
+        }
+        setState(() {
+          _unAbleToLogin = true;
+        });
+      }
+    } else {
+      print('trying to sign up');
+      try {
+        _unAbleToLogin = false;
+        final UserCredential = await _fireBase
+            .createUserWithEmailAndPassword(
+          email: _enteredEmail,
+          password: _enteredPassword,
+        )
+            .then(
+          (value) {
+            setState(
+              () {
+                _unAbleToLogin = false;
+              },
+            );
+          },
         );
         print(UserCredential);
       } on FirebaseAuthException catch (error) {
@@ -45,12 +92,16 @@ class _AuthScreenState extends State<AuthScreen> {
           default:
             print(error.message);
         }
+        setState(() {
+          _unAbleToLogin = true;
+        });
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('is login: $_isLogin');
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
@@ -78,6 +129,14 @@ class _AuthScreenState extends State<AuthScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            _unAbleToLogin
+                                ? const Text(
+                                    'unable to log in.',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                  )
+                                : const SizedBox(),
                             TextFormField(
                               decoration: const InputDecoration(
                                 labelText: 'Email',
@@ -115,19 +174,19 @@ class _AuthScreenState extends State<AuthScreen> {
                             const SizedBox(height: 12),
                             ElevatedButton(
                               onPressed: _submit,
-                              child: Text(_isLogin ? 'Login' : 'Signup'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)
                                     .colorScheme
                                     .primaryContainer,
                               ),
+                              child: Text(_isLogin ? 'Login' : 'Signup'),
                             ),
                             TextButton(
                               onPressed: () {
-                                setState(() {
-                                  _isLogin = !_isLogin;
-                                });
-                              },
+                                      setState(() {
+                                        _isLogin = !_isLogin;
+                                      });
+                                    },
                               child: Text(_isLogin
                                   ? 'Create new account'
                                   : 'I already have an account'),
