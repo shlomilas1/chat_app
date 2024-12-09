@@ -1,3 +1,4 @@
+import 'package:chat_app/widgets/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -137,6 +138,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     ),
                                   )
                                 : const SizedBox(),
+                            if (!_isLogin) const UserImagePicker(),
                             TextFormField(
                               decoration: const InputDecoration(
                                 labelText: 'Email',
@@ -183,10 +185,10 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                      setState(() {
-                                        _isLogin = !_isLogin;
-                                      });
-                                    },
+                                setState(() {
+                                  _isLogin = !_isLogin;
+                                });
+                              },
                               child: Text(_isLogin
                                   ? 'Create new account'
                                   : 'I already have an account'),
