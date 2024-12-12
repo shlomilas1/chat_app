@@ -95,7 +95,7 @@ class _AuthScreenState extends State<AuthScreen> {
           FirebaseStorage.instance
               .ref()
               .child('user_images')
-              .child(value.user!.uid + '.jpg')
+              .child('${value.user!.uid}.jpg')
               .putFile(_userImageFile!)
               .then((storageRef) {
             storageRef.ref.getDownloadURL().then((url) async {
