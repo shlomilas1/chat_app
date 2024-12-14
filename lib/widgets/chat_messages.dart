@@ -43,6 +43,7 @@ class ChatMessages extends StatelessWidget {
               left: 13,
               right: 13,
             ),
+            reverse: true,
             itemCount: chatDocs.length,
             itemBuilder: (ctx, index) {
               final chatmessage = chatDocs[index].data();

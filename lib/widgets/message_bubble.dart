@@ -43,7 +43,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    print('user image url: ' + userImage.toString());
+    print('user image url: $userImage');
 
     return Stack(
       children: [
